@@ -13,7 +13,7 @@ import ntf as ntflib
 from myutil.sampler import *
 
 ###########################################
-
+EPS = 0.000000001
 ###########################################
 
 
@@ -35,11 +35,10 @@ def createIndexFromEdge(edge):
 
 
 def normalize(value):
-    eps = 0.000000001
-    value = value + eps
+    value = value + EPS
     valueMin = np.min(value)
     valueMax = np.max(value)
-    return (value - valueMin)/(valueMax - valueMin + eps)
+    return (value - valueMin)/(valueMax - valueMin + EPS)
 
 
 def transformHistToColorStrength(value):
@@ -73,6 +72,27 @@ def showHistDistribution(hist, edge):
     color = transformHistToColorStrength(hist)
     size = transformHistToSize(hist)
     showDistribution(index, color, size)
+
+
+def showFactorValue(factor):
+    fig = plt.figure()
+    fig.text(0.5, 0.04, 'Order', ha='center')
+    fig.text(0.04, 0.5, 'Bases',
+             va='center', rotation='vertical')
+    colorList = ['b', 'g', 'r']
+    colorLists = len(colorList)
+    xLen, yLen, elements = factor.shape
+    line = np.arange(elements)
+    maxValue = np.max(factor)
+    index = 0
+    for i1 in np.arange(xLen):
+        color = colorList[i1 % colorLists]
+        for i2 in np.arange(yLen):
+            index += 1
+            ax = fig.add_subplot(xLen, yLen, index)
+            ax.set_ylim([0, maxValue])
+            ax.bar(line, factor[i1, i2], color=color)
+    plt.show()
 
 
 def transformSampleToHist(x, mu, sigma):
@@ -113,7 +133,12 @@ if __name__ == '__main__':
     # Start factorization.
     ntf = ntflib.NTF(classNum, hist)
     ntf.factorize(hist)
-    hist = ntf.reconstruct()
-    factor = ntf.getFactor()
 
+    # Show factors
+    weight, factor = ntf.getNormalizedFactor()
+    weightedFactor = factor*weight.reshape(-1, 1, 1)
+    showFactorValue(weightedFactor)
+
+    # Show reconstructed histogram from factors.
+    hist = ntf.reconstruct()
     showHistDistribution(hist, edge)

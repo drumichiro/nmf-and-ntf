@@ -107,6 +107,15 @@ class NTF():
     def getFactor(self):
         return np.copy(self.factor)
 
+    def getNormalizedFactor(self):
+        weight = []
+        normalized = []
+        for i1 in self.factor:
+            baseValue = np.sum(i1, axis=1)
+            weight = np.append(weight, np.prod(baseValue))
+            normalized = np.append(normalized, i1/baseValue.reshape(-1, 1))
+        return weight, normalized.reshape(self.factor.shape)
+
 
 # For easy unit test
 if __name__ == '__main__':
