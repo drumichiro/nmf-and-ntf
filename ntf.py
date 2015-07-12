@@ -15,7 +15,7 @@ EPS = 0.0000001
 
 
 class NTF():
-    def __init__(self, bases, x):
+    def __init__(self, bases, x, costFuncType='euclid'):
         self.shape = x.shape
         self.factor = self.allocateFactor(bases)
         # Preset shape to be easy for broadcast.
@@ -24,7 +24,14 @@ class NTF():
         for i1 in np.arange(dimention):
             self.preshape[i1, i1] = 1
         # Select update rule based on a cost function.
-        self.updater = self.updateBasedOnEuclid
+        if 'euclid' == costFuncType:
+            self.updater = self.updateBasedOnEuclid
+        elif 'gkld' == costFuncType:
+            self.updater = self.updateBasedOnGKLD
+        elif 'isd' == costFuncType:
+            self.updater = self.updateBasedOnISD
+        else:
+            assert False, "\"" + costFuncType + "\" is invalid."
 
     def allocateFactor(self, bases):
         factor = []
@@ -68,25 +75,22 @@ class NTF():
 
         return numer/(denom + EPS)
 
-    def updateBasedOnGKL(self, x, estimation, boost, factor, index):
-        element = np.array([1])
-        for i1 in np.arange(len(factor)):
-            if index != i1:
-                element = np.kron(factor[i1], element)
+    def updateBasedOnGKLD(self, x, factor, index):
+        # Create tensor partly.
+        element = self.kronAlongIndex(factor, index)
 
         # Summation
         element = element.reshape(self.preshape[index])
+        estimation = self.createTensorFromFactors()
+        boost = x/(estimation + EPS)
         numer = self.sumAlongIndex(boost*element, factor, index)
         denom = np.sum(element)
-        print "numer: =============================="
-        print numer
-        print "denom: =============================="
-        print denom
 
         return numer/(denom + EPS)
 
-    def updateBasedOnIS(self, x, index):
+    def updateBasedOnISD(self, x, factor, index):
         # TODO: implement this.
+        assert False, "This cost function is unsupported now."
         return 0
 
     def updateFactorEachBasis(self, x, factorPerBasis):
