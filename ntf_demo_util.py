@@ -105,26 +105,9 @@ def transformSampleToHist(x, mu, sigma):
     return np.histogramdd(x, bins=(5, 5, 5), range=histRange)
 
 
-if __name__ == '__main__':
+def run_ntf_demo(mu, sigma, eachSampleNum):
     # Generate samples as input data from Gaussians.
-#     mu = [[10, 20, 30],
-#           [20, 30, 10],
-#           [30, 10, 20]]
-#     sigma = [[[5, 0, 0],
-#               [0, 5, 0],
-#               [0, 0, 5]],
-#              [[5, 0, 0],
-#               [0, 5, 0],
-#               [0, 0, 5]],
-#              [[5, 0, 0],
-#               [0, 5, 0],
-#               [0, 0, 5]]]
-    mu = [[20, 20, 20]]
-    sigma = [[[5, 0, 0],
-              [0, 5, 0],
-              [0, 0, 5]]]
-    sampleNum = 100
-    x = generateVectorSample(sampleNum, mu, sigma)
+    x = generateVectorSample(eachSampleNum, mu, sigma)
     hist, edge = transformSampleToHist(x, mu, sigma)
     # showHistDistribution(hist, edge)
 
