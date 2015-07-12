@@ -6,11 +6,12 @@ Created on 2015/06/14
 @author: drumichiro
 '''
 
+import numpy as np
 import pylab as plt
 import matplotlib as mlib
 from mpl_toolkits.mplot3d import Axes3D
 import ntf as ntflib
-from myutil.sampler import *
+from myutil.sampler import generateVectorSample
 
 ###########################################
 EPS = 0.000000001
