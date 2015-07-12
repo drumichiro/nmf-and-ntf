@@ -59,12 +59,28 @@ def transformHistToSize(value):
     return normalize(value).ravel()*(2000 - offset) + offset
 
 
-def showDistribution(index, color, size):
+def show2dDistribution(index, color, size):
+    i, j = index
+    plt.scatter(i, j, color=color, s=size, marker="o")
+    plt.show()
+
+
+def show3dDistribution(index, color, size):
     i, j, k = index
     fig = plt.figure()
     ax = Axes3D(fig)
     ax.scatter3D(i, j, k, color=color, s=size, marker="o")
     plt.show()
+
+
+def showDistribution(index, color, size):
+    dimention = len(index)
+    if 2 == dimention:
+        show2dDistribution(index, color, size)
+    elif 3 == dimention:
+        show3dDistribution(index, color, size)
+    else:
+        print "%dD scatter plot is unsupported." % dimention
 
 
 def showHistDistribution(hist, edge):
@@ -102,7 +118,8 @@ def transformSampleToHist(x, mu, sigma):
     rangeMin = np.min(mu, axis=0) - 2*np.max(sigmaAve, axis=0)
     rangeMax = np.max(mu, axis=0) + 2*np.max(sigmaAve, axis=0)
     histRange = np.array([rangeMin, rangeMax]).T
-    return np.histogramdd(x, bins=(5, 5, 5), range=histRange)
+    orders = len(histRange)
+    return np.histogramdd(x, bins=np.ones(orders)*5, range=histRange)
 
 
 def run_ntf_demo(mu, sigma, eachSampleNum):
