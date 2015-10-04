@@ -5,7 +5,7 @@ Created on 2015/07/12
 
 @author: drumichiro
 '''
-from ntf_demo_util import run_ntf_demo
+from ntf_demo_util import runNtfDemo
 
 
 if __name__ == '__main__':
@@ -21,4 +21,4 @@ if __name__ == '__main__':
               [0, 0, 5, 0],
               [0, 0, 0, 5]]]
     eachSampleNum = 100
-    run_ntf_demo(mu, sigma, eachSampleNum)
+    runNtfDemo(mu, sigma, eachSampleNum)

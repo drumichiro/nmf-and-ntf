@@ -10,7 +10,7 @@ import numpy as np
 import pylab as plt
 import matplotlib as mlib
 from mpl_toolkits.mplot3d import Axes3D
-import ntf as ntflib
+import ntf
 from myutil.sampler import generateVectorSample
 
 ###########################################
@@ -123,7 +123,7 @@ def transformSampleToHist(x, mu, sigma):
     return np.histogramdd(x, bins=np.ones(orders)*5, range=histRange)
 
 
-def run_ntf_demo(mu, sigma, eachSampleNum):
+def runNtfDemo(mu, sigma, eachSampleNum):
     # Generate samples as input data from Gaussians.
     x = generateVectorSample(eachSampleNum, mu, sigma)
     hist, edge = transformSampleToHist(x, mu, sigma)
@@ -132,14 +132,14 @@ def run_ntf_demo(mu, sigma, eachSampleNum):
     # Use \# of Gaussians as \# of classes.
     classNum = len(mu)
     # Start factorization.
-    ntf = ntflib.NTF(classNum, hist)
-    ntf.factorize(hist)
+    ntfInstance = ntf.NTF(classNum, hist)
+    ntfInstance.factorize(hist)
 
     # Show factors
-    weight, factor = ntf.getNormalizedFactor()
+    weight, factor = ntfInstance.getNormalizedFactor()
     weightedFactor = factor*weight.reshape(-1, 1, 1)
     showFactorValue(weightedFactor)
 
     # Show reconstructed histogram from factors.
-    hist = ntf.reconstruct()
+    hist = ntfInstance.reconstruct()
     showHistDistribution(hist, edge)
