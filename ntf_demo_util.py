@@ -91,24 +91,33 @@ def showHistDistribution(hist, edge):
     showDistribution(index, color, size)
 
 
+def getMaxFactor(factor):
+    maxFactor = []
+    for fct1 in factor:
+        for fct2 in fct1:
+            maxFactor.append(np.max(fct2))
+    return np.max(maxFactor)
+
+
 def showFactorValue(factor):
-    fig = plt.figure()
+    fig = plt.figure(figsize=(16, 12))
     fig.text(0.5, 0.04, 'Order', ha='center')
     fig.text(0.04, 0.5, 'Bases',
              va='center', rotation='vertical')
     colorList = ['b', 'g', 'r']
     colorLists = len(colorList)
-    xLen, yLen, elements = factor.shape
-    line = np.arange(elements)
-    maxValue = np.max(factor)
+    xLen, yLen = factor.shape[:2]
+    elements = map(len, factor[0])
+    upperLimit = getMaxFactor(factor)
     index = 0
     for i1 in np.arange(xLen):
         color = colorList[i1 % colorLists]
         for i2 in np.arange(yLen):
             index += 1
             ax = fig.add_subplot(xLen, yLen, index)
-            ax.set_ylim([0, maxValue])
-            ax.bar(line, factor[i1, i2], color=color)
+            ax.set_ylim([0, upperLimit])
+            line = np.arange(elements[i2])
+            ax.bar(line, factor[i1][i2], color=color)
     plt.show()
 
 
@@ -120,7 +129,11 @@ def transformSampleToHist(x, mu, sigma):
     rangeMax = np.max(mu, axis=0) + 2*np.max(sigmaAve, axis=0)
     histRange = np.array([rangeMin, rangeMax]).T
     orders = len(histRange)
-    return np.histogramdd(x, bins=np.ones(orders)*5, range=histRange)
+    # Divide each axis to 5, 6, 7,...,(orders + 5).
+    baseBins = 5
+    bins = np.arange(baseBins, baseBins + orders)
+#     bins = np.ones(orders)*5
+    return np.histogramdd(x, bins=bins, range=histRange)
 
 
 def runNtfDemo(mu, sigma, eachSampleNum):
@@ -136,9 +149,7 @@ def runNtfDemo(mu, sigma, eachSampleNum):
     ntfInstance.factorize(hist)
 
     # Show factors
-    weight, factor = ntfInstance.getNormalizedFactor()
-    weightedFactor = factor*weight.reshape(-1, 1, 1)
-    showFactorValue(weightedFactor)
+    showFactorValue(ntfInstance.getFactor())
 
     # Show reconstructed histogram from factors.
     hist = ntfInstance.reconstruct()

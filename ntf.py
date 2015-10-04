@@ -121,11 +121,16 @@ class NTF():
     def getNormalizedFactor(self):
         weight = []
         normalized = []
-        for i1 in self.factor:
-            baseValue = np.sum(i1, axis=1)
+        for fct in self.factor:
+            baseValue = np.empty(len(fct))
+            for i1 in np.arange(len(fct)):
+                baseValue[i1] = np.sum(fct[i1])
             weight = np.append(weight, np.prod(baseValue))
-            normalized = np.append(normalized, i1/baseValue.reshape(-1, 1))
-        return weight, normalized.reshape(self.factor.shape)
+            tmp = []
+            for fct2, base in zip(fct, baseValue):
+                tmp.append(fct2/base)
+            normalized.append(tmp)
+        return weight, np.array(normalized)
 
 
 # For easy unit test
