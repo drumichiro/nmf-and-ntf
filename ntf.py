@@ -108,6 +108,13 @@ class NTF():
     def reconstruct(self):
         return self.createTensorFromFactors()
 
+    def setFactor(self, dimention, initialValue):
+        assert len(initialValue) == len(self.factor)
+        assert dimention < len(self.factor[0])
+        assert initialValue.shape[1] == len(self.factor[0][dimention])
+        for i1, value in enumerate(initialValue):
+            self.factor[i1][dimention] = value + EPS
+
     def getFactor(self):
         return np.copy(self.factor)
 
