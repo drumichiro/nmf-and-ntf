@@ -21,4 +21,8 @@ if __name__ == '__main__':
               [0, 0, 5, 0],
               [0, 0, 0, 5]]]
     eachSampleNum = 100
+    # It tends to be difficult to analyze
+    #  a high rank tensor without initial value.
     runNtfDemo(mu, sigma, eachSampleNum)
+    # Setting initial value may have a result to be better.
+    runNtfDemo(mu, sigma, eachSampleNum, initialValueUsed=True)
