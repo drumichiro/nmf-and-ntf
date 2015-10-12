@@ -7,6 +7,7 @@ Created on 2015/06/14
 '''
 
 import numpy as np
+from multiprocessing import Pool
 
 
 ###########################################
@@ -14,8 +15,17 @@ EPS = 0.0000001
 ###########################################
 
 
+class MulHelper(object):
+    def __init__(self, cls, mtd_name):
+        self.cls = cls
+        self.mtd_name = mtd_name
+
+    def __call__(self, *args, **kwargs):
+        return getattr(self.cls, self.mtd_name)(*args, **kwargs)
+
+
 class NTF():
-    def __init__(self, bases, x, costFuncType='euclid'):
+    def __init__(self, bases, x, costFuncType='euclid', parallelCalc=False):
         self.shape = x.shape
         self.factor = self.allocateFactor(bases)
         # Preset shape to be easy for broadcast.
@@ -23,6 +33,13 @@ class NTF():
         self.preshape = np.tile(self.shape, dimention).reshape(dimention, -1)
         for i1 in np.arange(dimention):
             self.preshape[i1, i1] = 1
+
+        if parallelCalc:
+            self.pool = Pool()
+            self.composeTensor = self.composeTensorParallely
+        else:
+            self.composeTensor = self.composeTensorSerially
+
         # Select update rule based on a cost function.
         if 'euclid' == costFuncType:
             self.updater = self.updateBasedOnEuclid
@@ -32,6 +49,10 @@ class NTF():
             self.updater = self.updateBasedOnISD
         else:
             assert False, "\"" + costFuncType + "\" is invalid."
+
+    def __getstate__(self):
+        self_dict = self.__dict__.copy()
+        del self_dict['pool']
 
     def allocateFactor(self, bases):
         factor = []
@@ -49,6 +70,18 @@ class NTF():
             value = np.sum(value, axis=1)
         return value
 
+    def composeTensorSerially(self, element):
+        return map(self.kronAll, element)
+
+    def composeTensorParallely(self, element):
+        return self.pool.map(MulHelper(self, 'kronAll'), element)
+
+    def kronAll(self, factor):
+        element = np.array([1])
+        for i1 in factor:
+            element = np.kron(element, i1)
+        return element
+
     def kronAlongIndex(self, factor, index):
         element = np.array([1])
         for i1 in factor[:index]:
@@ -58,9 +91,8 @@ class NTF():
         return element
 
     def createTensorFromFactors(self):
-        tensor = 0
-        for i1 in self.factor:
-            tensor += self.kronAlongIndex(i1, len(i1))
+        tensor = self.composeTensor(self.factor)
+        tensor = np.sum(tensor, axis=0)
         return tensor.reshape(self.shape)
 
     def updateBasedOnEuclid(self, x, factor, index):
@@ -101,8 +133,12 @@ class NTF():
         for i1 in factor:
             self.updateFactorEachBasis(x, i1)
 
-    def factorize(self, x, iterations=100):
-        for _ in np.arange(iterations):
+    def factorize(self, x, iterations=100, showProgress=False):
+        for i1 in np.arange(1, iterations + 1):
+            if showProgress:
+                progress = "*" if 0 < (i1 % 20) \
+                    else "[%d/%d]\n" % (i1, iterations)
+                print progress,
             self.updateAllFactors(x, self.factor)
 
     def reconstruct(self):
