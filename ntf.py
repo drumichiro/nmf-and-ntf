@@ -144,6 +144,15 @@ class NTF():
     def reconstruct(self):
         return self.createTensorFromFactors()
 
+    def normalizeFactor(self):
+        weight = []
+        for i1, fct1 in enumerate(self.factor):
+            baseValue = np.array(map(np.sum, fct1))
+            weight = np.append(weight, np.prod(baseValue))
+            self.factor[i1] = map(lambda fct2, base:
+                                  fct2/base, fct1, baseValue)
+        return weight
+
     def setFactor(self, dimention, initialValue):
         assert len(initialValue) == len(self.factor)
         assert dimention < len(self.factor[0])

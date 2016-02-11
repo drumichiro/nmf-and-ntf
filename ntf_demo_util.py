@@ -177,7 +177,10 @@ def runNtfDemo(mu, sigma, eachSampleNum, initialValueUsed=False):
     # Start factorization.
     ntfInstance.factorize(hist)
 
-    # Show factors
+    # Normalize factors.
+    # ntfInstance.normalizeFactor()
+
+    # Show factors.
     showFactorValue(ntfInstance.getFactor())
 
     # Show reconstructed histogram from factors.
