@@ -25,7 +25,7 @@ class MulHelper(object):
 
 
 class NTF():
-    def __init__(self, bases, x, costFuncType='euclid', parallelCalc=False):
+    def __init__(self, bases, x, costFuncType='gkld', parallelCalc=False):
         self.shape = x.shape
         self.factor = self.allocateFactor(bases)
         # Preset shape to be easy for broadcast.
