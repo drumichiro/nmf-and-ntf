@@ -16,7 +16,7 @@ from ntf_demo_util import generateInitialFactorValue
 
 class NtfTest(unittest.TestCase):
 
-    def generateGaussianHistgram(self, mu, sigma, eachSamples):
+    def generateGaussianHistogram(self, mu, sigma, eachSamples):
         # Generate samples as input data from Gaussians.
         x = generateVectorSample(eachSamples, mu, sigma)
 
@@ -27,15 +27,20 @@ class NtfTest(unittest.TestCase):
         hist, edge = transformSampleToHist(x, mu, sigma, bins)
         return hist, edge
 
-    def evaluateNtfReconstruction(self, mu, sigma, eachSamples,
-                                  costFuncType, classNum):
-        srcHist, edge = self.generateGaussianHistgram(mu, sigma, eachSamples)
+    def calculateHistAccuracy(self, srcHist, dstHist):
+        diffHist = srcHist - dstHist
+        diffHistSum = np.sum(diffHist*diffHist)
+        srcHistSum = np.sum(srcHist*srcHist)
+        return 1.0 - diffHistSum/srcHistSum
+
+    def evaluateNtfReconst(self, mu, sigma, eachSamples,
+                           costFuncType, classNum):
+        srcHist, edge = self.generateGaussianHistogram(mu, sigma, eachSamples)
 
         # Prepare for NTF.
         ntfInstance = ntf.NTF(classNum, srcHist, costFuncType)
 
         # Set initial values.
-        # print "--------------------"
         initialFactor = generateInitialFactorValue(mu, edge, classNum)
         for i1, initial in enumerate(initialFactor):
             # print initial
@@ -45,15 +50,8 @@ class NtfTest(unittest.TestCase):
         ntfInstance.factorize(srcHist)
         dstHist = ntfInstance.reconstruct()
 
-#         print "===================="
-#         for factor in ntfInstance.getFactor():
-#             print factor
-
         # Calculate a difference between source and destination histogram.
-        diffHist = srcHist - dstHist
-        diffHistSum = np.sum(diffHist*diffHist)
-        srcHistSum = np.sum(srcHist*srcHist)
-        return 1.0 - diffHistSum/srcHistSum
+        return self.calculateHistAccuracy(srcHist, dstHist)
 
     def get2ndOrderGaussianParameter(self):
         mu = [[10, 20],
@@ -102,97 +100,127 @@ class NtfTest(unittest.TestCase):
                   [0, 0, 5, 0, 0],
                   [0, 0, 0, 5, 0],
                   [0, 0, 0, 0, 5]]]
-#         mu = [[10, 10, 20, 20, 10, 10],
-#               [30, 30, 30, 30, 30, 30],
-#               [30, 30, 30, 30, 30, 30]]
-#         sigma = [[[5, 0, 0, 0, 0, 0],
-#                   [0, 5, 0, 0, 0, 0],
-#                   [0, 0, 5, 0, 0, 0],
-#                   [0, 0, 0, 5, 0, 0],
-#                   [0, 0, 0, 0, 5, 0],
-#                   [0, 0, 0, 0, 0, 5]],
-#                  [[5, 0, 0, 0, 0, 0],
-#                   [0, 5, 0, 0, 0, 0],
-#                   [0, 0, 5, 0, 0, 0],
-#                   [0, 0, 0, 5, 0, 0],
-#                   [0, 0, 0, 0, 5, 0],
-#                   [0, 0, 0, 0, 0, 5]],
-#                  [[5, 0, 0, 0, 0, 0],
-#                   [0, 5, 0, 0, 0, 0],
-#                   [0, 0, 5, 0, 0, 0],
-#                   [0, 0, 0, 5, 0, 0],
-#                   [0, 0, 0, 0, 5, 0],
-#                   [0, 0, 0, 0, 0, 5]]]
         return mu, sigma
+
+    def calculateAccuracy(self, mu, sigma, costFuncType):
+        eachSamples = 100
+        # Check a case using lacking basis.
+        accuracy = self.evaluateNtfReconst(mu, sigma, eachSamples,
+                                           costFuncType, len(mu) - 1)
+        print "insufficient: %f" % (accuracy)
+        insufficientAccuracy = accuracy
+        # Check a basic case.
+        accuracy = self.evaluateNtfReconst(mu, sigma, eachSamples,
+                                           costFuncType, len(mu))
+        print "sufficient  : %f" % (accuracy)
+        sufficientAccuracy = accuracy
+        # Check a case of over fitting.
+        accuracy = self.evaluateNtfReconst(mu, sigma, eachSamples,
+                                           costFuncType, len(mu) + 1)
+        print "overfit     : %f" % (accuracy)
+        overfitAccuracy = accuracy
+        return insufficientAccuracy, sufficientAccuracy, overfitAccuracy
 
     def testNtf2ndOrderWithEuclid(self):
         # Generate used samples.
         mu, sigma = self.get2ndOrderGaussianParameter()
-        eachSamples = 100
-        costFuncType = "euclid"
-        # Check a case using lacking basis.
-        accuracy = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                  costFuncType, len(mu) - 1)
-        self.assertLess(accuracy, 0.7)
-        # Check a basic case.
-        accuracy = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                  costFuncType, len(mu))
-        self.assertGreater(accuracy, 0.98)
-        # Check a case of over fitting.
-        overfit = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                 costFuncType, len(mu) + 1)
-        self.assertGreater(overfit, accuracy)
+        insufficientAccuracy, sufficientAccuracy, overfitAccuracy \
+            = self.calculateAccuracy(mu, sigma, "euclid")
+
+        self.assertLess(insufficientAccuracy, 0.7)
+        self.assertGreater(sufficientAccuracy, 0.992)
+        leftBoudaryAccuracy = sufficientAccuracy - 0.02
+        rightBoudaryAccuracy = sufficientAccuracy - 0.01
+        self.assertLess(leftBoudaryAccuracy, overfitAccuracy)
+        self.assertGreater(overfitAccuracy, rightBoudaryAccuracy)
+
+    def testNtf2ndOrderWithGkld(self):
+        # Generate used samples.
+        mu, sigma = self.get2ndOrderGaussianParameter()
+        insufficientAccuracy, sufficientAccuracy, overfitAccuracy \
+            = self.calculateAccuracy(mu, sigma, "gkld")
+
+        self.assertLess(insufficientAccuracy, 0.7)
+        self.assertGreater(sufficientAccuracy, 0.989)
+        leftBoudaryAccuracy = sufficientAccuracy - 0.02
+        rightBoudaryAccuracy = sufficientAccuracy - 0.01
+        self.assertLess(leftBoudaryAccuracy, overfitAccuracy)
+        self.assertGreater(overfitAccuracy, rightBoudaryAccuracy)
 
     def testNtf3rdOrderWithEuclid(self):
         # Generate used samples.
         mu, sigma = self.get3rdOrderGaussianParameter()
-        eachSamples = 100
-        costFuncType = "euclid"
-        # Check a case using lacking basis.
-        accuracy = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                  costFuncType, len(mu) - 1)
-        self.assertLess(accuracy, 0.7)
-        # Check a basic case.
-        accuracy = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                  costFuncType, len(mu))
-        self.assertGreater(accuracy, 0.98)
-        # Check a case of over fitting.
-        overfit = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                 costFuncType, len(mu) + 1)
-        self.assertGreater(overfit, accuracy)
+        insufficientAccuracy, sufficientAccuracy, overfitAccuracy \
+            = self.calculateAccuracy(mu, sigma, "euclid")
+
+        self.assertLess(insufficientAccuracy, 0.7)
+        self.assertGreater(sufficientAccuracy, 0.995)
+        leftBoudaryAccuracy = sufficientAccuracy - 0.02
+        rightBoudaryAccuracy = sufficientAccuracy - 0.01
+        self.assertLess(leftBoudaryAccuracy, overfitAccuracy)
+        self.assertGreater(overfitAccuracy, rightBoudaryAccuracy)
+
+    def testNtf3rdOrderWithGkld(self):
+        # Generate used samples.
+        mu, sigma = self.get3rdOrderGaussianParameter()
+        insufficientAccuracy, sufficientAccuracy, overfitAccuracy \
+            = self.calculateAccuracy(mu, sigma, "gkld")
+
+        self.assertLess(insufficientAccuracy, 0.7)
+        self.assertGreater(sufficientAccuracy, 0.991)
+        leftBoudaryAccuracy = sufficientAccuracy - 0.02
+        rightBoudaryAccuracy = sufficientAccuracy - 0.01
+        self.assertLess(leftBoudaryAccuracy, overfitAccuracy)
+        self.assertGreater(overfitAccuracy, rightBoudaryAccuracy)
 
     def testNtf4thOrderWithEuclid(self):
         # Generate used samples.
         mu, sigma = self.get4thOrderGaussianParameter()
-        eachSamples = 100
-        costFuncType = "euclid"
-        # Check a case using lacking basis.
-        accuracy = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                  costFuncType, len(mu) - 1)
-        self.assertLess(accuracy, 0.7)
-        # Check a basic case.
-        accuracy = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                  costFuncType, len(mu))
-        self.assertGreater(accuracy, 0.95)
-        # Check a case of over fitting.
-        overfit = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                 costFuncType, len(mu) + 1)
-        self.assertGreater(overfit, accuracy)
+        insufficientAccuracy, sufficientAccuracy, overfitAccuracy \
+            = self.calculateAccuracy(mu, sigma, "euclid")
+
+        self.assertLess(insufficientAccuracy, 0.7)
+        self.assertGreater(sufficientAccuracy, 0.962)
+        leftBoudaryAccuracy = sufficientAccuracy - 0.02
+        rightBoudaryAccuracy = sufficientAccuracy - 0.01
+        self.assertLess(leftBoudaryAccuracy, overfitAccuracy)
+        self.assertGreater(overfitAccuracy, rightBoudaryAccuracy)
+
+    def testNtf4thOrderWithGkld(self):
+        # Generate used samples.
+        mu, sigma = self.get4thOrderGaussianParameter()
+        insufficientAccuracy, sufficientAccuracy, overfitAccuracy \
+            = self.calculateAccuracy(mu, sigma, "gkld")
+
+        self.assertLess(insufficientAccuracy, 0.7)
+        self.assertGreater(sufficientAccuracy, 0.952)
+        leftBoudaryAccuracy = sufficientAccuracy - 0.02
+        rightBoudaryAccuracy = sufficientAccuracy - 0.01
+        self.assertLess(leftBoudaryAccuracy, overfitAccuracy)
+        self.assertGreater(overfitAccuracy, rightBoudaryAccuracy)
 
     def testNtf5thOrderWithEuclid(self):
         # Generate used samples.
         mu, sigma = self.get5thOrderGaussianParameter()
-        eachSamples = 100
-        costFuncType = "euclid"
-        # Check a case using lacking basis.
-        accuracy = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                  costFuncType, len(mu) - 1)
-        self.assertLess(accuracy, 0.7)
-        # Check a basic case.
-        accuracy = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                  costFuncType, len(mu))
-        self.assertGreater(accuracy, 0.85)
-        # Check a case of over fitting.
-        overfit = self.evaluateNtfReconstruction(mu, sigma, eachSamples,
-                                                 costFuncType, len(mu) + 1)
-        self.assertGreater(overfit, accuracy)
+        insufficientAccuracy, sufficientAccuracy, overfitAccuracy \
+            = self.calculateAccuracy(mu, sigma, "euclid")
+
+        self.assertLess(insufficientAccuracy, 0.7)
+        self.assertGreater(sufficientAccuracy, 0.851)
+        leftBoudaryAccuracy = sufficientAccuracy - 0.02
+        rightBoudaryAccuracy = sufficientAccuracy - 0.01
+        self.assertLess(leftBoudaryAccuracy, overfitAccuracy)
+        self.assertGreater(overfitAccuracy, rightBoudaryAccuracy)
+
+    def testNtf5thOrderWithGkld(self):
+        # Generate used samples.
+        mu, sigma = self.get5thOrderGaussianParameter()
+        insufficientAccuracy, sufficientAccuracy, overfitAccuracy \
+            = self.calculateAccuracy(mu, sigma, "gkld")
+
+        self.assertLess(insufficientAccuracy, 0.7)
+        self.assertGreater(sufficientAccuracy, 0.821)
+        leftBoudaryAccuracy = sufficientAccuracy - 0.02
+        rightBoudaryAccuracy = sufficientAccuracy - 0.01
+        self.assertLess(leftBoudaryAccuracy, overfitAccuracy)
+        self.assertGreater(overfitAccuracy, rightBoudaryAccuracy)
