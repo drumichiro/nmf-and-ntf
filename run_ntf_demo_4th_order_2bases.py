@@ -26,3 +26,4 @@ if __name__ == '__main__':
     runNtfDemo(mu, sigma, eachSampleNum)
     # Setting initial value may have a result to be better.
     runNtfDemo(mu, sigma, eachSampleNum, initialValueUsed=True)
+    print "Done."
