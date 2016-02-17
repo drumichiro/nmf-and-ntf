@@ -87,41 +87,28 @@ Overview is that all.
 $\beta$ divergence is used as a cost function of NTF.
 Especially in this document, generalized KL divergence is covered,
  which is a specific form of $\beta$ divergence.
-A vector decomposed from $R$ th order tensor is expressed as $u_{ki_{r}}^{(r)}$
-$(k = 1,2,...,K)$
-$(i_{r} = 1,2,...,I_{r})$
-$(r = 1,2,...,R)$.
+A vector decomposed from $R$ th order tensor is expressed as
+![base_tensor](image/equation/base_tensor.png)
 Here, $K$, $I_{r}$ and $i_{r}$ are the number of bases,
  the number of elements of each vector and
  the index of elements of each vector respectively.
 When $L$ is dealt with as an aggregate of element number of each order,
  the tensor component approximated by Kronecker product of vectors
  is the following.
-$$
-\hat{x}_{\bf i} = \sum_{k=1}^{K} \prod_{r=1}^{R}
-u_{ki_{r}}^{(r)}
-\quad ({\bf i} = i_{1}i_{2}...i_{R} \in L) \quad (1)
-$$
+
+![eq_estimated_tensor](image/equation/eq_estimated_tensor.png)
+
 Therefore, the cost function based on generalized KL divergence is the following.
-$$
-D(X, \hat{X})
- = \sum_{{\bf i} \in L}(
-   x_{\bf i}\log\frac{x_{\bf i}}{\hat{x}_{\bf i}}
-    - x_{\bf i} + \hat{x}_{\bf i}) \quad (2)
-$$
+
+![eq_distance](image/equation/eq_distance.png)
+
 When the approximated tensor $\hat{X}$ is completely matched up
  to the observed tensor $X$, the cost function $D$ equals zero.
 After assigning Eq(1) to Eq(2), we obtain
  a sum form of $\log$ transformed from a fraction inside $\log$ in the following.
-$$
-D(X, \hat{X})
- = \sum_{{\bf i} \in L}(
-   x_{\bf i}\log x_{\bf i}
-   - x_{\bf i}\log \sum_{k=1}^{K}
-   \prod_{r=1}^{R} u_{ki_{r}}^{(r)}
-   - x_{\bf i} + \sum_{k=1}^{K}
-   \prod_{r=1}^{R} u_{ki_{r}}^{(r)}) \quad (3)
-$$
+
+![eq_distance_transformed](image/equation/eq_distance_transformed.png)
+
 
 ### Partial differentiation of cost function
 
@@ -130,13 +117,9 @@ However, it is difficult to differentiate this equation partially directly
  because the second term is a **log-sum form**
  ( $\log\sum_{k}f_{k}(u_{k{\bf i}})$ ).
 Therefore, the following variable,
-$$
-h_{k{\bf i}}^{0} = \frac{
-  \prod_{r=1}^{R} u_{ki_{r}}^{0(r)}
-}{
-  \hat{x}_{\bf i}^{0}
-} \quad (4)
-$$
+
+![eq_distribution](image/equation/eq_distribution.png)
+
 is defined, which has a property of
  $\sum_{k=1}^{K} h_{k{\bf i}} = 1, h_{k{\bf i}} \geq 0$.
 Here, the zero number on right shoulder of each variable means
@@ -145,33 +128,13 @@ multiplying the second term of Eq(3) by $h_{k{\bf i}}/h_{k{\bf i}}(=1)$
  which consists of Eq(4),
  and applying Jensen's inequality derive the maximal value of the second term
  which has a **sum-log form** ( $\sum_{k}\log f_{k}(u_{k{\bf i}})$ ) as follows.
-$$
-- x_{\bf i} \log \sum_{k=1}^{K}
-h_{k{\bf i}}^{0}
-\frac{\prod_{r=1}^{R} u_{ki_{r}}^{(r)}}
-{h_{k{\bf i}}^{0}} \leq - x_{\bf i}
-\sum h_{k{\bf i}}^{0} \log
-\frac{\prod_{r=1}^{R} u_{ki_{r}}^{(r)}}
-{h_{k{\bf i}}^{0}} \quad (5)
-$$
+
+![eq_jensen](image/equation/eq_jensen.png)
 
 Eq(5) are assigned to Eq(3) so that
  the maximal value of the cost function is derived in the following.
-$$
-D(X, \hat{X}) \leq
-\sum_{{\bf i} \in L}(
-  x_{\bf i}\log x_{\bf i}
-  - x_{\bf i} \sum h_{k{\bf i}}^{0} \log \frac{\prod_{r=1}^{R} u_{ki_{r}}^{(r)}}
-  {h_{k{\bf i}}^{0}}
-  - x_{\bf i} + \sum_{k=1}^{K}
-  \prod_{r=1}^{R} u_{ki_{r}}^{(r)}) \\
-  = \sum_{{\bf i} \in L}(
-    - x_{\bf i} \sum h_{k{\bf i}} \log \prod_{r=1}^{R} u_{ki_{r}}^{(r)}
-    + \sum_{k=1}^{K}
-    \prod_{r=1}^{R} u_{ki_{r}}^{(r)}
-   + C)
-   \quad (6)
-$$
+
+![eq_sub_distance](image/equation/eq_sub_distance.png)
 
 Here, just for simple expression,
  some terms which don't include $u_{ki_{r}}^{(r)}$ are replaced
@@ -180,33 +143,15 @@ Here, just for simple expression,
 In order to minimalize the maximal value of the cost function,
  the following is obtained by assigning zero to
  what is derived by differentiating Eq(6) partially.
-$$
-0 = \sum_{{\bf i} \in L_{-r}} (
-  - x_{\bf i}
-\frac{h_{k{\bf i}}^{0}}{u_{ki_{r}}^{(r)}} +
-\prod_{\substack{r=1 \\ \bar{r} \neq r} }^{R}
-u_{ki_{\bar{r}}}^{(\bar{r})}
-) \quad (7)
-$$
+
+![eq_differentiation](image/equation/eq_differentiation.png)
 
 Here, $L_{-r}$ is the aggregate as
  ( $\bar{\bf i} = i_{1}...i_{r-1}i_{r+1}...i_{R} \in L_{-r}$ ).
 Eq(7) is summarized in $u_{ki_{r}}^{(r)}$ using Eq(4),
  so that the following update equation is obtained.
-$$
-u_{ki_{r}}^{(r)} = u_{ki_{r}}^{0(r)} \cdot
-\frac{
-  \sum_{\bar{\bf i} \in L_{-r}}
-  (x_{\bar{\bf i}}
-    / \hat{x}_{\bar{\bf i}}^{0})
-    \prod_{\substack{\bar{r}=1 \\ \bar{r} \neq r} }^{R}
-    u_{ki_{\bar{r}}}^{0(\bar{r})}
-}{
-  \sum_{\bar{\bf i} \in L_{-r}}
-  \prod_{\substack{\bar{r}=1 \\ \bar{r} \neq r} }^{R}
-  u_{ki_{\bar{r}}}^{(\bar{r})}
-} \quad (8)
-$$
+
+![eq_update](image/equation/eq_update.png)
 
 ## REFERENCE
 - Koh Takeuchi et al.: _Non-negative Multiple Tensor Factorization_
