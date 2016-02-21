@@ -1,8 +1,7 @@
 # Nonnegative Tensor Factorization
 
-> If you can read Japanese, please read my article of qiita,
- http://qiita.com/drumichiro.
- (TODO: modify the URL after writing the qiita article.)
+> If you can read Japanese, please read my article of Qiita, http://qiita.com/drumichiro/items/14555c3845775e3fe225 and http://qiita.com/drumichiro/items/078c6e0bebf353e40791 (Sorry, Japanese text only).
+
 
 ## INTRODUCTION
 
@@ -159,6 +158,4 @@ Eq(7) is summarized in $u_{ki_{r}}^{(r)}$ using Eq(4),
 ## REFERENCE
 - Koh Takeuchi et al.: _Non-negative Multiple Tensor Factorization_
 - And many Japanese technical articles. Please see the more description
-  about references in my article of qiita, http://qiita.com/drumichiro
-  (TODO: modify the URL after writing the qiita article.)
-  (Sorry, Japanese text only).
+  about references in my article of Qiita, http://qiita.com/drumichiro/items/14555c3845775e3fe225 and http://qiita.com/drumichiro/items/078c6e0bebf353e40791 (Sorry, Japanese text only).
