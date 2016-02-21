@@ -36,9 +36,12 @@ In this demo, random samples are generated from two Gaussians in 3D space,
 Firstly, the source tensor based on the random samples is showed
  on a left side, and the reconstructed tensor
  from the estimated factors is showed on a right side as a result.
- | Source tensor | Reconstructed tensor |
- |-----------|------------|
- | ![ntf_demo_source_tensor](image/ntf_demo_source_tensor.png) | ![ntf_demo_reconstruct](image/ntf_demo_reconstruct.png) |
+
+
+| Source tensor | Reconstructed tensor |
+|-----------|------------|
+| ![ntf_demo_source_tensor](image/ntf_demo_source_tensor.png) | ![ntf_demo_reconstruct](image/ntf_demo_reconstruct.png) |
+
 
 We can see the reconstructed tensor is similar to the source tensor,
  so it makes sense that the source tensor was decomposed correctly.
