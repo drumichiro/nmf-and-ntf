@@ -110,12 +110,12 @@ def showDistribution(index, color, size, bins, label):
     elif 3 == dimention:
         show3dDistribution(index, color, size, bins, label)
     else:
-        print "%dD scatter plot is unsupported." % dimention
+        print("%dD scatter plot is unsupported." % dimention)
 
 
 def showHistDistribution(hist, bins=None, edge=None, label=None):
     if None is bins:
-        bins = map(np.arange, hist.shape)
+        bins = list(map(np.arange, hist.shape))
     index = createIndexFromBin(bins)
     color = transformHistToColorStrength(hist)
     size = transformHistToSize(hist)
@@ -148,7 +148,7 @@ def showFactorValue(factor):
     colorList = ['b', 'g', 'r']
     colorLists = len(colorList)
     xLen, yLen = factor.shape[:2]
-    elements = map(len, factor[0])
+    elements = list(map(len, factor[0]))
     maxValue = getMaxFactors(factor)
     index = 0
     for i1 in np.arange(xLen):

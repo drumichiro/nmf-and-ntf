@@ -16,10 +16,10 @@ from myutil.ponpare.converter import \
 
 def showLabel(label):
     for i1, lbl1 in enumerate(label):
-        print "label:[%d] ->" % i1,
+        print("label:[%d] ->" % i1, end="")
         for lbl2 in lbl1:
-            print lbl2 + ",",
-        print ""
+            print(lbl2 + ",", end="")
+        print("")
 
 
 def runNtfPonpareCoupon(column, bases):
@@ -47,11 +47,11 @@ def runNtfPonpareCoupon(column, bases):
 
     showLabel(label)
     # Start factorization.
-    print "Start factorization..."
+    print("Start factorization...")
     ntfInstance = ntf.NTF(bases, hist, parallelCalc=True)
     ntfInstance.factorize(hist, showProgress=True)
 
     # Show factors
     # ntfInstance.normalizeFactor()
-    print "Show value of factors..."
+    print("Show value of factors...")
     showFactorValue(ntfInstance.getFactor())

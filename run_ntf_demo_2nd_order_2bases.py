@@ -19,4 +19,4 @@ if __name__ == '__main__':
     eachSampleNum = 100
     # Second order NTF is called NMF.
     runNtfDemo(mu, sigma, eachSampleNum)
-    print "Done."
+    print("Done.")

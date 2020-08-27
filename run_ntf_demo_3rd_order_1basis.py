@@ -16,4 +16,4 @@ if __name__ == '__main__':
               [0, 0, 5]]]
     eachSampleNum = 100
     runNtfDemo(mu, sigma, eachSampleNum)
-    print "Done."
+    print("Done.")

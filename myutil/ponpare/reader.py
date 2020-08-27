@@ -13,7 +13,7 @@ import time
 
 def convertValueWithDictionary(dataFrame, column, dictionary):
     target = dataFrame[column].values
-    target[:] = map(lambda x: dictionary[x], target)
+    target[:] = list(map(lambda x: dictionary[x], target))
 
 
 def renameCouponDummy(couponDummy, valuePrefixed):
@@ -100,11 +100,11 @@ def readPonpareData(readingIndices=None, valuePrefixed=False):
         try:
             df = pd.read_csv(name)
         except IOError:
-            print "==========================================================="
-            print "Please download coupon data from:"
-            print "- https://www.kaggle.com/c/coupon-purchase-prediction/data"
-            print "==========================================================="
+            print("===========================================================")
+            print("Please download coupon data from:")
+            print("- https://www.kaggle.com/c/coupon-purchase-prediction/data")
+            print("===========================================================")
             raise
         dataFrame.append(renameColumn(df, valuePrefixed))
-        print " - %s -> elapsed time: %f[sec]" % (name, time.time() - start)
+        print(" - %s -> elapsed time: %f[sec]" % (name, time.time() - start))
     return dataFrame

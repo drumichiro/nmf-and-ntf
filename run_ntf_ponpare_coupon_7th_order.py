@@ -13,4 +13,4 @@ if __name__ == '__main__':
     runNtfPonpareCoupon(["GENRE_NAME", "SEX_ID", "LIST_PREF_NAME",
                          "AGE", "DISCOUNT_PRICE", "USER_PREF_NAME",
                          "VALIDPERIOD"], 10)
-    print "Done."
+    print("Done.")

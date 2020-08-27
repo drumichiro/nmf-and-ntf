@@ -107,17 +107,17 @@ class NtfTest(unittest.TestCase):
         # Check a case using lacking basis.
         accuracy = self.evaluateNtfReconst(mu, sigma, eachSamples,
                                            costFuncType, len(mu) - 1)
-        print "insufficient: %f" % (accuracy)
+        print("insufficient: %f" % (accuracy))
         insufficientAccuracy = accuracy
         # Check a basic case.
         accuracy = self.evaluateNtfReconst(mu, sigma, eachSamples,
                                            costFuncType, len(mu))
-        print "sufficient  : %f" % (accuracy)
+        print("sufficient  : %f" % (accuracy))
         sufficientAccuracy = accuracy
         # Check a case of over fitting.
         accuracy = self.evaluateNtfReconst(mu, sigma, eachSamples,
                                            costFuncType, len(mu) + 1)
-        print "overfit     : %f" % (accuracy)
+        print("overfit     : %f" % (accuracy))
         overfitAccuracy = accuracy
         return insufficientAccuracy, sufficientAccuracy, overfitAccuracy
 

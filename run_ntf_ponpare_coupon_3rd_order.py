@@ -11,4 +11,4 @@ from ntf_ponpare_coupon import runNtfPonpareCoupon
 
 if __name__ == '__main__':
     runNtfPonpareCoupon(["GENRE_NAME", "SEX_ID", "LIST_PREF_NAME"], 5)
-    print "Done."
+    print("Done.")

@@ -71,7 +71,7 @@ class NTF():
         return value
 
     def composeTensorSerially(self, element):
-        return map(self.kronAll, element)
+        return list(map(self.kronAll, element))
 
     def composeTensorParallely(self, element):
         return self.pool.map(MulHelper(self, 'kronAll'), element)
@@ -138,7 +138,7 @@ class NTF():
             if showProgress:
                 progress = "*" if 0 < (i1 % 20) \
                     else "[%d/%d]\n" % (i1, iterations)
-                print progress,
+                print(progress, end="")
             self.updateAllFactors(x, self.factor)
 
     def reconstruct(self):
@@ -147,10 +147,10 @@ class NTF():
     def normalizeFactor(self):
         weight = []
         for i1, fct1 in enumerate(self.factor):
-            baseValue = np.array(map(np.sum, fct1))
+            baseValue = np.array(list(map(np.sum, fct1)))
             weight = np.append(weight, np.prod(baseValue))
-            self.factor[i1] = map(lambda fct2, base:
-                                  fct2/base, fct1, baseValue)
+            self.factor[i1] = list(map(lambda fct2, base:
+                                  fct2/base, fct1, baseValue))
         return weight
 
     def setFactor(self, dimention, initialValue):
@@ -185,4 +185,4 @@ if __name__ == '__main__':
     # test = np.arange(6).reshape(1, 2, 3)
     ntf = NTF(1, test)
     ntf.factorize(test)
-    print ntf.reconstruct()
+    print(ntf.reconstruct())

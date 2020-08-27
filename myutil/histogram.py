@@ -11,7 +11,7 @@ import numpy as np
 
 def generateFeatureLabelIf(label, bins):
     if label is None:
-        labelBins = map(str, bins)
+        labelBins = list(map(str, bins))
         labelBins.insert(0, "\"under\"")
         labelBins[-1] += " \"over\""
         label = ["%02d %s" % (i1, lb) for i1, lb in enumerate(labelBins)]
@@ -31,14 +31,14 @@ def extractBinAndLabel(levels):
     label = []
     for i1 in levels:
         bins.append(np.arange(len(i1)))
-        label.append(map(lambda x: str(x).decode('utf-8'), i1.values))
+        label.append(list(map(lambda x: str(x), i1.values)))
     return np.array(bins), np.array(label)
 
 
 def createHistogram(dataFrame, extractColumn):
     group = dataFrame.groupby(extractColumn).size()
     index = group.index
-    hist = np.zeros(map(len, index.levels))
+    hist = np.zeros(list(map(len, index.levels)))
     for i1, pos in enumerate(zip(*index.labels)):
         hist[pos] = group.values[i1]
     bins, label = extractBinAndLabel(index.levels)
