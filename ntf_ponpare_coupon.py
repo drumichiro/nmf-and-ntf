@@ -28,6 +28,10 @@ def runNtfPonpareCoupon(column, bases):
         couponListTest, couponListTrain, \
         couponVisitTrain, userList = readPonpareData(valuePrefixed=True)
 
+    # WAR: Fix the wrong column in coupon data.
+    couponVisitTrain = couponVisitTrain.rename(columns={'VIEW_COUPON_ID_hash':
+                                                        'COUPON_ID_hash'})
+
     # Convert to one-hot expression.
     userList, couponListTrain, couponListTest = \
         digitizeHistoryFeatureValue(userList,
