@@ -1,1 +1,8 @@
-Please download coupon data from https://www.kaggle.com/c/coupon-purchase-prediction/data.
+Please download the following coupon data from https://www.kaggle.com/c/coupon-purchase-prediction/data.
+ - coupon_area_test.csv
+ - coupon_area_train.csv
+ - coupon_detail_train.csv
+ - coupon_list_test.csv
+ - coupon_list_train.csv
+ - coupon_visit_train.csv
+ - user_list.csv

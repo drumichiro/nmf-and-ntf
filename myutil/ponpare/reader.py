@@ -101,8 +101,15 @@ def readPonpareData(readingIndices=None, valuePrefixed=False):
             df = pd.read_csv(name)
         except IOError:
             print("===========================================================")
-            print("Please download coupon data from:")
-            print("- https://www.kaggle.com/c/coupon-purchase-prediction/data")
+            print("Please download the following coupon data from ", end="")
+            print("https://www.kaggle.com/c/coupon-purchase-prediction/data")
+            print(" - coupon_area_test.csv")
+            print(" - coupon_area_train.csv")
+            print(" - coupon_detail_train.csv")
+            print(" - coupon_list_test.csv")
+            print(" - coupon_list_train.csv")
+            print(" - coupon_visit_train.csv")
+            print(" - user_list.csv")
             print("===========================================================")
             raise
         dataFrame.append(renameColumn(df, valuePrefixed))
