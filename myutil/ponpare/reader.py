@@ -7,7 +7,7 @@ Created on 2015/06/14
 '''
 
 import pandas as pd
-from constant import *  # @UnusedWildImport
+from .constant import *  # @UnusedWildImport
 import time
 
 
